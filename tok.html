@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日本景點地圖</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map { 
+      height: 100vh; 
+      width: 100%; 
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  var map = L.map('map').setView([35.6895, 139.6917], 10); // Centered at Tokyo
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  // 讀取並顯示 GeoJSON 資料
+  fetch('tokyo.geojson')
+    .then(response => response.json())
+    .then(data => {
+      var geojsonLayer = L.geoJSON(data, {
+        style: function(feature) {
+          return {
+            fillColor: '#3388ff',
+            weight: 2,
+            opacity: 1,
+            color: 'white',
+            fillOpacity: 0.5
+          };
+        }
+      }).addTo(map);
+      map.fitBounds(geojsonLayer.getBounds()); // 設置地圖範圍為東京
+    });
+
+  var locations = [
+    { 
+      name: "龜有公園", 
+      address: "日本〒261-0003 千葉縣千葉市美浜區海浜幕張2-1", 
+      coordinates: [35.6313, 140.0549],
+      description: "龜有公園是位於千葉市美浜區的大型都市公園，擁有廣闊的草地、湖泊和步道，是市民休閒娛樂的理想場所。",
+      link: "https://www.example.com/kaiyukan"
+    },
+    { 
+      name: "秋葉原", 
+      address: "東京都千代田區外神田1丁目", 
+      coordinates: [35.6984, 139.7722],
+      description: "秋葉原是東京的電器街，以其眾多的電器商店和動漫文化商品店而聞名。這裡也是動漫迷和科技愛好者的天堂。",
+      link: "https://www.example.com/akihabara"
+    },
+    { 
+      name: "東京哈利波特", 
+      address: "東京都港區六本木6-10-1 六本木一丁目ヒルズ", 
+      coordinates: [35.74530200040186, 139.64611971454386],
+      description: "東京哈利波特是一個讓您身臨其境體驗哈利波特魔法世界的地方，包括令人驚嘆的魔法遊行和富有魔法氛圍的各種設施。",
+      link: "https://www.example.com/tokyo-harry-potter"
+    },
+    // 其他景點的資訊...
+  ];
+
+  locations.forEach(function(location) {
+    var marker = L.marker(location.coordinates).addTo(map);
+    marker.bindPopup('<b>' + location.name + '</b><br>' + location.address + '<br>' + location.description + '<br><a href="' + location.link + '" target="_blank">更多資訊</a>');
+  });
+
+  // 添加控制圖層組顯示的控制項
+  var baseMaps = {
+    "地圖": map,
+  };
+
+  L.control.layers(baseMaps).addTo(map);
+</script>
+
+</body>
+</html>
