@@ -23,13 +23,13 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-  var map = L.map('map').setView([35.6895, 139.6917], 10); // Centered at Tokyo
+  var map = L.map('map').setView([35.6895, 139.6917], 12); // Centered at Tokyo
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
 
-  // 讀取並顯示 GeoJSON 資料
+  // 定義東京區域的 GeoJSON 檔案路徑
   fetch('tokyo.geojson')
     .then(response => response.json())
     .then(data => {
@@ -47,42 +47,97 @@
       map.fitBounds(geojsonLayer.getBounds()); // 設置地圖範圍為東京
     });
 
-  var locations = [
+  // 創建兩個圖層組
+  var layerGroup1 = L.layerGroup();
+  var layerGroup2 = L.layerGroup();
+
+  // 第一個圖層組的地點
+  var locations1 = [
     { 
-      name: "龜有公園", 
-      address: "日本〒261-0003 千葉縣千葉市美浜區海浜幕張2-1", 
-      coordinates: [35.6313, 140.0549],
-      description: "龜有公園是位於千葉市美浜區的大型都市公園，擁有廣闊的草地、湖泊和步道，是市民休閒娛樂的理想場所。",
-      link: "https://www.example.com/kaiyukan"
+      name: "台場", 
+      coordinates: [35.6308, 139.7768], 
+      description: "台場是位於東京灣上的一個大型人工島，擁有眾多購物中心、娛樂設施和觀光景點。著名景點包括彩虹大橋、台場海濱公園、以及標誌性的富士電視台總部大樓。",
+      link: "https://www.gotokyo.org/tc/destinations/southern-tokyo/odaiba/index.html"
     },
     { 
-      name: "秋葉原", 
-      address: "東京都千代田區外神田1丁目", 
-      coordinates: [35.6984, 139.7722],
-      description: "秋葉原是東京的電器街，以其眾多的電器商店和動漫文化商品店而聞名。這裡也是動漫迷和科技愛好者的天堂。",
-      link: "https://www.example.com/akihabara"
+      name: "四谷步道", 
+      coordinates: [35.6863, 139.7300], 
+      description: "四谷位於東京的市中心，充滿著寧靜的住宅氛圍，附近有許多健行步道，且有許多重要的歷史地標位於此處。",
+      link: "https://resources.realestate.co.jp/zh_TW/area-guide/%E5%9B%9B%E8%B0%B7%E6%8C%87%E5%8D%97-%E6%9D%B1%E4%BA%AC%E5%9C%B0%E5%8D%80%E6%8C%87%E5%8D%97/"
     },
     { 
-      name: "東京哈利波特", 
-      address: "東京都港區六本木6-10-1 六本木一丁目ヒルズ", 
-      coordinates: [35.74530200040186, 139.64611971454386],
-      description: "東京哈利波特是一個讓您身臨其境體驗哈利波特魔法世界的地方，包括令人驚嘆的魔法遊行和富有魔法氛圍的各種設施。",
-      link: "https://www.example.com/tokyo-harry-potter"
+      name: "上野公園", 
+      coordinates: [35.7148, 139.7745], 
+      description: "上野公園是東京市內最大的公園之一，以其美麗的櫻花和眾多的博物館而聞名。園內的主要景點包括東京國立博物館、上野動物園、和著名的上野東照宮。",
+      link: "https://www.gotokyo.org/tc/spot/482/index.html"
     },
-    // 其他景點的資訊...
+    { 
+      name: "淺草寺", 
+      coordinates: [35.7148, 139.7967], 
+      description: "淺草寺是東京最古老和最著名的寺廟之一，建於公元628年。寺廟的主要建築包括雷門、寶藏門和本堂。淺草寺是東京的重要文化和宗教中心，每年吸引大量的遊客和信徒。",
+      link: "https://www.gltjp.com/zh-hant/article/item/10068/"
+    }
   ];
 
-  locations.forEach(function(location) {
-    var marker = L.marker(location.coordinates).addTo(map);
-    marker.bindPopup('<b>' + location.name + '</b><br>' + location.address + '<br>' + location.description + '<br><a href="' + location.link + '" target="_blank">更多資訊</a>');
+  // 第二個圖層組的地點
+  var locations2 = [
+    { 
+      name: "御茶之水", 
+      coordinates: [35.6994, 139.7650], 
+      description: "御茶之水是東京的一個充滿歷史和學術氣息的地區。",
+      link: "https://tokyo.letsgojp.com/archives/290050/"
+    },
+    { 
+      name: "本鄉", 
+      coordinates: [35.7074, 139.7608], 
+      description: "本鄉是東京大學所在地，擁有豐富的文化和歷史。",
+      link: "https://tw.wamazing.com/media/article/a-2300/"
+    },
+    { 
+      name: "駒込", 
+      coordinates: [35.7361, 139.7462], 
+      description: "駒込以其美麗的花園和歷史建築而聞名。",
+      link: "https://tw.news.yahoo.com/%E6%9D%B1%E4%BA%AC-%E6%9A%A2%E9%81%8A%E4%B8%8B%E7%94%BA%E9%A2%A8%E6%83%85-%E9%A7%92%E8%BE%BC-%E5%B7%A2%E9%B4%A8-%E5%A4%A7%E5%A1%9A-084225583.html"
+    },
+    { 
+      name: "神保町", 
+      coordinates: [35.6958, 139.7586], 
+      description: "在步行範圍內有許多大學的神保町地區，散發閑靜氛圍，是相當適合細細探索的學生街。同時靖國神社也在此。",
+      link: "https://www.gotokyo.org/tc/destinations/central-tokyo/kanda-and-jimbocho/index.html"
+    }
+  ];
+
+  // 添加地點到第一個圖層組，使用藍色標記
+  locations1.forEach(function(location) {
+    var marker = L.circleMarker(location.coordinates, {
+      color: 'blue',
+      radius: 8,
+      fillOpacity: 0.6
+    }).addTo(layerGroup1);
+    marker.bindPopup('<b>' + location.name + '</b><br>' + location.description + '<br><a href="' + location.link + '" target="_blank">更多資訊</a>');
   });
 
+  // 添加地點到第二個圖層組，使用綠色標記
+  locations2.forEach(function(location) {
+    var marker = L.circleMarker(location.coordinates, {
+      color: 'green',
+      radius: 8,
+      fillOpacity: 0.6
+    }).addTo(layerGroup2);
+    marker.bindPopup('<b>' + location.name + '</b><br>' + location.description + '<br><a href="' + location.link + '" target="_blank">更多資訊</a>');
+  });
+
+  // 將圖層組添加到地圖
+  layerGroup1.addTo(map);
+  layerGroup2.addTo(map);
+
   // 添加控制圖層組顯示的控制項
-  var baseMaps = {
-    "地圖": map,
+  var overlayMaps = {
+    "文學地圖(藍)": layerGroup1,
+    "村上春樹《挪威的森林》(綠)": layerGroup2
   };
 
-  L.control.layers(baseMaps).addTo(map);
+  L.control.layers(null, overlayMaps).addTo(map);
 </script>
 
 </body>
